@@ -1,6 +1,8 @@
 import os
 from flask import Flask, request
 
+from handlers import procesar
+
 app = Flask(__name__)
 
 VERIFY_TOKEN = "EBOT_BASIC_VERIFY"
@@ -29,14 +31,35 @@ def verify():
     return "Forbidden", 403
 
 # ─────────────────────────────
-# MENSAJES ENTRANTES
+# MENSAJES ENTRANTES (META CLOUD API)
 # ─────────────────────────────
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
     data = request.json
 
-    print(data)
+    print("WEBHOOK DATA:", data)
+
+    try:
+        entry = data["entry"][0]["changes"][0]["value"]
+
+        if "messages" in entry:
+            msg = entry["messages"][0]
+
+            numero = msg["from"]
+            texto = msg["text"]["body"]
+
+            numero_formateado = f"whatsapp:+{numero}"
+
+            # IMPORTANTE:
+            # mantenemos compatibilidad con tu BASIC
+            from twilio.twiml.messaging_response import MessagingResponse
+            resp = MessagingResponse()
+
+            procesar(numero_formateado, texto, resp)
+
+    except Exception as e:
+        print("ERROR WEBHOOK:", e)
 
     return "OK", 200
 
