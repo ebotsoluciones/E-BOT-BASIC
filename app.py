@@ -1,46 +1,47 @@
-"""
-app.py — servidor Flask para el bot de turnos en WhatsApp (Twilio)
-Deploy: Railway
-"""
-
 import os
 from flask import Flask, request
-from twilio.twiml.messaging_response import MessagingResponse
-
-from handlers import procesar
 
 app = Flask(__name__)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Health check — Railway lo usa para saber que el servicio está vivo
-# ─────────────────────────────────────────────────────────────────────────────
+VERIFY_TOKEN = "EBOT_BASIC_VERIFY"
+
+# ─────────────────────────────
+# HEALTHCHECK
+# ─────────────────────────────
 
 @app.route("/", methods=["GET"])
 def health():
     return "OK", 200
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Webhook de Twilio WhatsApp
-# Twilio envía POST a /webhook con los campos:
-#   From  →  whatsapp:+549XXXXXXXXXX
-#   Body  →  texto del mensaje
-# ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────
+# VERIFICACIÓN META
+# ─────────────────────────────
+
+@app.route("/webhook", methods=["GET"])
+def verify():
+    mode = request.args.get("hub.mode")
+    token = request.args.get("hub.verify_token")
+    challenge = request.args.get("hub.challenge")
+
+    if mode and token == VERIFY_TOKEN:
+        return challenge, 200
+
+    return "Forbidden", 403
+
+# ─────────────────────────────
+# MENSAJES ENTRANTES
+# ─────────────────────────────
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    numero = request.form.get("From", "")
-    body   = request.form.get("Body", "").strip()
+    data = request.json
 
-    resp = MessagingResponse()
-    procesar(numero, body, resp)
+    print(data)
 
-    return str(resp), 200, {"Content-Type": "text/xml"}
+    return "OK", 200
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Entrada
-# ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────
 
 if __name__ == "__main__":
-    # Railway inyecta PORT automáticamente
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
