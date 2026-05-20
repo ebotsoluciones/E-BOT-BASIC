@@ -2,6 +2,7 @@ import os
 from flask import Flask, request
 
 from handlers import procesar
+from meta_sender import enviar_meta
 
 app = Flask(__name__)
 
@@ -51,10 +52,12 @@ def webhook():
 
             numero_formateado = f"whatsapp:+{numero}"
 
-            # IMPORTANTE:
-            # mantenemos compatibilidad con tu BASIC
-            from twilio.twiml.messaging_response import MessagingResponse
-            resp = MessagingResponse()
+            # 🔥 ADAPTADOR REAL (sin Twilio)
+            class RespAdapter:
+                def body(self, text):
+                    enviar_meta(numero_formateado, text)
+
+            resp = RespAdapter()
 
             procesar(numero_formateado, texto, resp)
 
