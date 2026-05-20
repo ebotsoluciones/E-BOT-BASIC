@@ -37,3 +37,10 @@ BLOQUEOS_FILE = "bloqueos.json"
 MENSAJES_FILE = "mensajes.json"
 # El estado de conversación usa la clave "estados_usuarios" directamente
 # desde handlers.py → se guarda en data/estados_usuarios.json
+# ── META CLOUD API (WhatsApp) ─────────────────────────────
+
+META_ACCESS_TOKEN = os.getenv("META_ACCESS_TOKEN", "")
+META_PHONE_NUMBER_ID = os.getenv("META_PHONE_NUMBER_ID", "")
+META_API_VERSION = "v25.0"
+
+META_API_URL = f"https://graph.facebook.com/{META_API_VERSION}/{META_PHONE_NUMBER_ID}/messages"
