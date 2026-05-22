@@ -1,4 +1,4 @@
-```python id="v6msqf"
+
 import requests
 
 from config import (
@@ -82,4 +82,3 @@ def enviar_meta(numero, texto):
         print("ERROR REQUEST META:", str(e))
 
         return False
-```
