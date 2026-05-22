@@ -1,4 +1,4 @@
-```python id="m9f4kn"
+
 """
 config.py — configuración de E-BOT BASIC 🚀
 Compatible con Meta WhatsApp Cloud API
@@ -68,4 +68,3 @@ META_VERIFY_TOKEN = os.getenv(
     "META_VERIFY_TOKEN",
     "e_bot_basic_verify"
 )
-```
