@@ -1,103 +1,221 @@
+````md id="0sk5ck"
 # E-BOT BASIC 🦙
 
-Bot de turnos para WhatsApp. Sin base de datos — todo se guarda en archivos JSON en disco.
+Bot de turnos para WhatsApp utilizando Meta WhatsApp Cloud API.
 
-**Ideal para:** profesionales independientes que quieren un bot funcional con costo casi cero.
+Sin base de datos:
+todos los datos se guardan en archivos JSON locales.
 
----
-
-## Stack
-
-- Python + Flask
-- Twilio WhatsApp
-- JSON en disco (sin PostgreSQL, sin Redis)
-- Deploy en cualquier VPS barato o Render free
+Ideal para:
+- profesionales independientes,
+- consultorios,
+- pequeños negocios,
+- MVP SaaS de bajo costo.
 
 ---
 
-## Estructura
+# Stack
 
-```
+- Python
+- Flask
+- Meta WhatsApp Cloud API
+- JSON persistente en disco
+- Gunicorn
+- Railway / VPS
+
+---
+
+# Arquitectura
+
+```txt
 ebot-basic/
-├── app.py            # servidor Flask + webhook Twilio
-├── config.py         # variables de entorno
-├── handlers.py       # lógica de conversación
-├── services.py       # turnos, bloqueos, mensajes
-├── storage.py        # lectura/escritura JSON en disco
+├── app.py
+├── config.py
+├── handlers.py
+├── services.py
+├── storage.py
+├── meta_sender.py
 ├── requirements.txt
+├── Procfile
 ├── .env.example
-├── Procfile          # para Render / Railway
-└── data/             # carpeta generada automáticamente
+└── data/
     ├── estados_usuarios.json
     ├── turnos.json
     ├── bloqueos.json
     └── mensajes.json
-```
+````
 
 ---
 
-## Instalación local
+# Características
+
+✅ Turnos automáticos
+✅ Panel administrador
+✅ Bloqueo de horarios
+✅ Persistencia JSON
+✅ Sin base de datos
+✅ Deploy rápido
+✅ Compatible Railway
+✅ Arquitectura modular
+✅ WhatsApp real vía Meta Cloud API
+
+---
+
+# Instalación local
 
 ```bash
 git clone <repo>
+
 cd ebot-basic
+
 python -m venv venv
-source venv/bin/activate       # Windows: venv\Scripts\activate
+```
+
+## Linux / Mac
+
+```bash
+source venv/bin/activate
+```
+
+## Windows
+
+```bash
+venv\Scripts\activate
+```
+
+## Instalar dependencias
+
+```bash
 pip install -r requirements.txt
-cp .env.example .env           # completar con tus credenciales
+```
+
+## Variables ENV
+
+```bash
+cp .env.example .env
+```
+
+Editar `.env` con:
+
+* token Meta,
+* número WhatsApp,
+* admins,
+* configuración general.
+
+## Ejecutar local
+
+```bash
 python app.py
 ```
 
 ---
 
-## Deploy en Render (free)
+# Variables de entorno
 
-1. Crear cuenta en [render.com](https://render.com)
-2. New → Web Service → conectar repo
-3. Build command: `pip install -r requirements.txt`
-4. Start command: `gunicorn app:app`
-5. Agregar las variables de entorno del `.env.example`
-6. Deploy
+```env
+MODO_TEST=true
 
-> ⚠️ Render free tiene filesystem efímero — los JSON se pierden al reiniciar.
-> Para persistencia real usá un VPS con disco persistente (DigitalOcean, Hetzner, etc.)
+ADMINS=5493515337035
 
----
+META_ACCESS_TOKEN=TU_TOKEN
 
-## Deploy en VPS (recomendado para producción)
+META_PHONE_NUMBER_ID=1100001633202652
 
-```bash
-# En el servidor
-git clone <repo>
-cd ebot-basic
-pip install -r requirements.txt
-cp .env.example .env    # editar con credenciales reales
-gunicorn app:app --bind 0.0.0.0:5000 --daemon
+META_VERIFY_TOKEN=e_bot_basic_verify
+
+DATA_DIR=data
 ```
 
-La carpeta `data/` se crea automáticamente y persiste entre reinicios.
-
 ---
 
-## Configuración Twilio
+# Deploy Railway
 
-1. Twilio Console → Messaging → Sandbox (o número comprado)
-2. Webhook URL: `https://TU_DOMINIO/webhook`
-3. Método: POST
+## 1. Crear proyecto
 
----
+Subir el repositorio a GitHub y conectar Railway.
 
-## Panel Admin
+## 2. Variables ENV
 
-- **Modo test** (`MODO_TEST=true`): escribí `adm` desde cualquier número
-- **Producción** (`MODO_TEST=false`): solo los números en `ADMINS` acceden
+Agregar todas las variables del `.env.example`.
 
-### Opciones admin
+## 3. Procfile
+
+```txt
+web: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4
 ```
+
+## 4. Deploy
+
+Railway detecta automáticamente:
+
+* Python,
+* requirements,
+* gunicorn.
+
+---
+
+# Webhook Meta
+
+## URL
+
+```txt
+https://TU_DOMINIO/webhook
+```
+
+## Verify Token
+
+```txt
+e_bot_basic_verify
+```
+
+---
+
+# Configuración Meta Developers
+
+En Meta for Developers:
+
+1. Crear app Business
+2. Agregar WhatsApp
+3. Configurar Webhook
+4. Suscribirse a:
+
+   * messages
+   * message_deliveries
+   * message_reads
+
+---
+
+# Panel Admin
+
+## Modo test
+
+```env
+MODO_TEST=true
+```
+
+Cualquier usuario puede escribir:
+
+```txt
+adm
+```
+
+## Producción
+
+```env
+MODO_TEST=false
+```
+
+Solo los números en `ADMINS` acceden al panel.
+
+---
+
+# Opciones Admin
+
+```txt
 1 Turnos hoy
 2 Próximos turnos
-3 Mensajes de pacientes
-4 Crear turno manual
+3 Mensajes
+4 Nuevo turno
 5 Cancelar turno
 6 Bloquear agenda
 7 Salir
@@ -105,32 +223,89 @@ La carpeta `data/` se crea automáticamente y persiste entre reinicios.
 
 ---
 
-## Horarios
+# Configuración horarios
 
-Configurados en `services.py`:
+En `services.py`
 
 ```python
 HORA_INICIO = time(9, 0)
-HORA_FIN    = time(19, 0)
-INTERVALO   = 60  # minutos
+
+HORA_FIN = time(19, 0)
+
+INTERVALO = 60
 ```
 
-Modificar esos valores para adaptar al cliente.
+---
+
+# Persistencia
+
+Todos los datos se guardan automáticamente en:
+
+```txt
+data/
+```
+
+Archivos:
+
+| Archivo               | Función              |
+| --------------------- | -------------------- |
+| estados_usuarios.json | estados conversación |
+| turnos.json           | turnos               |
+| bloqueos.json         | horarios bloqueados  |
+| mensajes.json         | mensajes pacientes   |
 
 ---
 
-## Archivos de datos
+# Producción recomendada
 
-| Archivo | Contenido |
-|---|---|
-| `data/estados_usuarios.json` | Estado de conversación por número |
-| `data/turnos.json` | Turnos agendados |
-| `data/bloqueos.json` | Horarios bloqueados |
-| `data/mensajes.json` | Mensajes enviados por pacientes |
+Railway funciona perfecto para MVP.
+
+Para escalado:
+
+* VPS
+* PostgreSQL
+* Redis
+* workers
+* colas
+* backups automáticos
 
 ---
 
-## Precio sugerido
+# Roadmap futuro
 
-- **$20–30 USD/mes** (servicio + mantenimiento)
-- **Pago único de instalación** + soporte por separado
+* Multi profesional
+* Calendario web
+* Recordatorios automáticos
+* Confirmación de asistencia
+* Integración Google Calendar
+* Panel web
+* Multi sucursal
+* E-BOT SUITE
+* E-BOT ENTERPRISE
+
+---
+
+# Modelo comercial sugerido
+
+## Instalación
+
+USD 50 → 300
+
+## Mensualidad
+
+USD 20 → 50
+
+## Versiones superiores
+
+* CUSTOM
+* SUITE
+* ENTERPRISE
+
+---
+
+# Licencia
+
+Uso privado / comercial bajo autorización del desarrollador.
+
+```
+```
