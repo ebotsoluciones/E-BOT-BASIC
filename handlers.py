@@ -1,4 +1,4 @@
-```python id="iy0k8o"
+
 from datetime import datetime
 
 from storage import cargar_json, guardar_json
@@ -812,5 +812,5 @@ def _flujo_bloquear_hora(numero, body, msg):
         msg.body(f"✅ Bloqueado: {fecha} {hora}")
 
     set_user_state(numero, "estado", "ADMIN")
-```
+
 
