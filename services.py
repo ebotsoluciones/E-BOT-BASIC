@@ -1,4 +1,4 @@
-```python
+
 """
 services.py — lógica de negocio del bot de turnos
 """
@@ -303,4 +303,3 @@ def guardar_mensaje(
     })
 
     guardar_json(MENSAJES_FILE, data)
-```
