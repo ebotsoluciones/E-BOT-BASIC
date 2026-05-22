@@ -1,4 +1,4 @@
-````md id="0sk5ck"
+
 # E-BOT BASIC 🦙
 
 Bot de turnos para WhatsApp utilizando Meta WhatsApp Cloud API.
@@ -306,6 +306,3 @@ USD 20 → 50
 # Licencia
 
 Uso privado / comercial bajo autorización del desarrollador.
-
-```
-```
