@@ -42,9 +42,9 @@ MENSAJES_FILE = "mensajes.json"
 # ─────────────────────────────────────────────────────
 # META CLOUD API
 # ─────────────────────────────────────────────────────
-```python id="5hwpw5"
+
 META_ACCESS_TOKEN = os.getenv("META_ACCESS_TOKEN", "")
-```
+
 
 
 META_PHONE_NUMBER_ID = os.getenv(
