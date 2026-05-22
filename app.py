@@ -8,7 +8,7 @@ from meta_sender import enviar_meta
 from config import META_VERIFY_TOKEN
 
 app = Flask(__name__)
-
+VERIFY_TOKEN = "EBOT_BASIC_VERIFY"
 # ─────────────────────────────────────────────
 # HEALTHCHECK
 # ─────────────────────────────────────────────
